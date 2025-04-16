@@ -66,22 +66,30 @@ def analyze_traffic(log_lines, suspicious_count):
     ip_counts = {}
     user_agent_counts = {}
     request_counts = {}
+    http_error_counts = {}
 
     for line in log_lines:
         try:
             ip_address = line.split(" ")[0].split(",")[0]
             user_agent = line.split('"')[-2]
             request = line.split('"')[1]
+            http_error = line.split('"')[-5].strip().split(" ")[0]
 
             ip_counts[ip_address] = ip_counts.get(ip_address, 0) + 1
+            http_error_counts[http_error] = http_error_counts.get(http_error, 0) + 1
             user_agent_counts[user_agent] = user_agent_counts.get(user_agent, 0) + 1
             request_counts[request] = request_counts.get(request, 0) + 1
+
         except IndexError:
             print(f"Warning: Could not extract data from log line: {line}")
 
     print("\nIP Address Counts:")
     for ip, count in ip_counts.items():
         print(f"{ip}: {count}")
+
+    print("\nHTTP Error Counts:")
+    for http_error, count in http_error_counts.items():
+        print(f"{http_error}: {count}")
 
     print("\nUser-Agent Counts:")
     for user_agent, count in user_agent_counts.items():
