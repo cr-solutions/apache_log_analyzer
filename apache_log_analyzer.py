@@ -25,9 +25,9 @@ import datetime
 import argparse
 
 
-def check_webserver_traffic(log_file, start_time, end_time):
+def parse_webserver_log(log_file, start_time, end_time):
     """
-    Checks Apache access logs for suspicious traffic within a specified time range.
+    parse Apache access logs for suspicious traffic within a specified time range.
     """
     try:
         with open(log_file, "r") as f:
@@ -57,7 +57,7 @@ def check_webserver_traffic(log_file, start_time, end_time):
         return None
 
 
-def analyze_traffic(log_lines):
+def analyze_traffic(log_lines, suspicious_count):
     """Analyzes the relevant log lines for potential bot activity."""
     if not log_lines:
         print("No relevant log lines found.")
@@ -91,9 +91,11 @@ def analyze_traffic(log_lines):
     for request, count in request_counts.items():
         print(f"{request}: {count}")
 
-    suspicious_ips = [ip for ip, count in ip_counts.items() if count > 10]
+    suspicious_ips = [ip for ip, count in ip_counts.items() if count > suspicious_count]
     if suspicious_ips:
-        print(f"\nSuspicious IPs (more than 10 requests): {suspicious_ips}")
+        print(
+            f"\nSuspicious IPs (more than {suspicious_count} requests): {suspicious_ips}"
+        )
     else:
         print("\nNo suspicious IPs detected based on request counts.")
 
@@ -107,6 +109,13 @@ if __name__ == "__main__":
     parser.add_argument("log_file", help="Path to the Apache access log file.")
     parser.add_argument("start_time", help="Start time (YYYY-MM-DD HH:MM:SS +ZZZZ).")
     parser.add_argument("end_time", help="End time (YYYY-MM-DD HH:MM:SS +ZZZZ).")
+    parser.add_argument(
+        "--suspicious_count",
+        help="if the IP address has more than this number of requests, it will be considered suspicious",
+        type=int,
+        default=10,
+        required=False,
+    )
 
     args = parser.parse_args()
 
@@ -117,7 +126,7 @@ if __name__ == "__main__":
         print("Error: Invalid time format. Please use YYYY-MM-DD HH:MM:SS +ZZZZ.")
         exit(1)
 
-    log_lines = check_webserver_traffic(args.log_file, start_time, end_time)
+    log_lines = parse_webserver_log(args.log_file, start_time, end_time)
 
     if log_lines is not None:
-        analyze_traffic(log_lines)
+        analyze_traffic(log_lines, args.suspicious_count)
