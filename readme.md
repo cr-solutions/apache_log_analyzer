@@ -20,3 +20,6 @@ LogFormat "%h %l %u %t \"%r\" %>s %b" common<br>
 ErrorLog ${APACHE_LOG_DIR}/error.log<br>
 CustomLog ${APACHE_LOG_DIR}/access.log combined<br>
 </p>
+<br>
+<br>
+License: CDDL Version 1.1
